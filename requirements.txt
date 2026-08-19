@@ -1,0 +1,8 @@
+langchain  #glues retrieval + the AI model together so we're not wiring everything by hand
+langchain-community
+sentence-transformers #turns my document text into number vectors (embeddings) — this runs free, locally, no internet needed
+faiss-cpu  #the searchable "index" that stores those vectors and finds matches fast
+pypdf      #reads text out of PDF files
+huggingface_hub  #lets us call a free hosted AI model to actually answer questions
+streamlit   #builds the clickable web page for the project
+python-dotenv #keeps my secret API key out of the code
