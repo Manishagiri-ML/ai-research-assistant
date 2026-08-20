@@ -125,3 +125,56 @@ def time_ago(timestamp_str):
         return f"{int(seconds // 3600)} hours ago"
     else:
         return f"{int(seconds // 86400)} days ago"
+
+
+def init_notes_table():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            question TEXT,
+            answer TEXT,
+            saved_at TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def save_note(question, answer):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO notes (question, answer, saved_at) VALUES (?, ?, ?)",
+        (question, answer, datetime.now().isoformat())
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_all_notes():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT question, answer, saved_at FROM notes ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+
+def get_all_conversations():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT question, answer, type, created_at FROM conversations ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+
+def get_all_papers():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT filename, size_kb, uploaded_at FROM papers ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
