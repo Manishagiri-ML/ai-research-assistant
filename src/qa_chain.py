@@ -1,21 +1,17 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv
 from huggingface_hub import InferenceClient
 from retriever import search
 
 # Load the .env file so we can read our token
 load_dotenv()
-token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-print("TOKEN LOADED:", token)
+token = os.getenv("HUGGINGFACEHUB_API_TOKEN") or st.secrets.get("HUGGINGFACEHUB_API_TOKEN")
 
 client = InferenceClient(token=token)
 
 
 def answer_question(question, top_k=3):
-    """
-    Retrieves relevant chunks, then asks a free hosted LLM to answer
-    the question using ONLY that retrieved context.
-    """
     context_chunks = search(question, top_k=top_k)
     context = "\n\n".join(context_chunks)
 
@@ -35,7 +31,13 @@ Answer:"""
         max_tokens=300,
     )
 
-    return response.choices[0].message.content
+    answer = response.choices[0].message.content
+
+    # Return both the answer AND the source chunks it was grounded in
+    return {
+        "answer": answer,
+        "sources": context_chunks,
+    }
 
 
 if __name__ == "__main__":

@@ -157,6 +157,24 @@ st.markdown(f"""
     .theme-btn button:hover {{
         transform: scale(1.08);
     }}
+        [data-testid="stFileUploaderDropzone"] {{
+        background-color: {card_bg} !important;
+        border: 1px dashed {border_color} !important;
+    }}
+    [data-testid="stFileUploaderDropzone"] * {{
+        color: {text_color} !important;
+    }}
+        [data-testid="stFileUploaderDropzone"] button {{
+        background-color: {card_bg} !important;
+        color: {text_color} !important;
+        border: 1px solid {border_color} !important;
+    }}
+        [data-testid="stFileUploaderDropzone"] button:hover {{
+        background: linear-gradient(90deg, #7C3AED, #3B82F6) !important;
+        color: white !important;
+        transform: scale(1.03);
+        transition: all 0.15s ease;
+    }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -250,14 +268,25 @@ elif page == "Ask Assistant":
         if st.button("Ask", type="primary"):
             if question:
                 with st.spinner("Thinking..."):
-                    answer = answer_question(question)
-                st.session_state["last_answer"] = {"q": question, "a": answer}
-                db.log_conversation(question, answer, "qa")
+                    result = answer_question(question)
+                st.session_state["last_answer"] = {
+                    "q": question,
+                    "a": result["answer"],
+                    "sources": result["sources"],
+                }
+                db.log_conversation(question, result["answer"], "qa")
             else:
                 st.warning("Please type or select a question first.")
 
         if st.session_state["last_answer"]:
             st.info(st.session_state["last_answer"]["a"])
+
+            with st.expander("📚 View sources"):
+                for i, src in enumerate(st.session_state["last_answer"].get("sources", [])):
+                    st.markdown(f"**Source {i+1}**")
+                    st.caption(src)
+                    st.divider()
+
             if st.button("💾 Save as Note"):
                 db.save_note(st.session_state["last_answer"]["q"], st.session_state["last_answer"]["a"])
                 st.success("Saved to Notes!")

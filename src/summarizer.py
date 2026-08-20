@@ -1,11 +1,12 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv
 from pathlib import Path
 from huggingface_hub import InferenceClient
 
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
-token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+token = os.getenv("HUGGINGFACEHUB_API_TOKEN") or st.secrets.get("HUGGINGFACEHUB_API_TOKEN")
 
 client = InferenceClient(token=token)
 
